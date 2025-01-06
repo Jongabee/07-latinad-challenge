@@ -1,5 +1,16 @@
+import { Routes, Route } from 'react-router-dom';
+import SearchView from './pages/SearchView';
+import ResultsView from './pages/ResultsView';
+
 function App() {
-  return <div className="bg-black">hola</div>;
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <Routes>
+        <Route path="/" element={<SearchView />} />
+        <Route path="/results" element={<ResultsView />} />
+      </Routes>
+    </div>
+  );
 }
 
 export default App;
