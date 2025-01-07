@@ -27,6 +27,7 @@ const ResultsView: React.FC = () => {
 
   const [isMapHovered, setIsMapHovered] = useState<boolean>(false);
   const [filtersVisible] = useState<boolean>(true);
+  const [isCartVisible, setIsCartVisible] = useState<boolean>(false);
 
   useEffect(() => {
     if (displays.length === 0 && !loading && !error) {
