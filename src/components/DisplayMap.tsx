@@ -3,6 +3,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { IDisplay } from '../types';
 import { useDispatch } from 'react-redux';
+import DisplayDetails from './DisplayDetails';
+import { Modal } from 'antd';
 
 interface IDisplayMap {
   displays: IDisplay[];
@@ -89,6 +91,16 @@ const DisplayMap: React.FC<IDisplayMap> = ({ displays }) => {
         id="map"
         className="h-[calc(100vh-20px)] w-full mt-3 rounded-lg shadow-md"
       />
+      <Modal
+        open={!!selectedDisplay}
+        onCancel={() => setSelectedDisplay(null)}
+        footer={null}
+        width={800}
+        centered
+        className="my-2 h-[calc(100vh-32px)] overflow-auto"
+      >
+        {selectedDisplay && <DisplayDetails display={selectedDisplay} />}
+      </Modal>
     </>
   );
 };
