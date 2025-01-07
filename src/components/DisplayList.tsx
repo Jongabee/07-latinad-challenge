@@ -4,7 +4,7 @@ import { IDisplay } from '../types';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import DisplayDetails from './DisplayDetails';
 import { truncateText } from '../utils/truncateText';
-        
+
 interface IDisplayListProps {
   displays: IDisplay[];
   pagination: {
@@ -20,7 +20,6 @@ const DisplayList: React.FC<IDisplayListProps> = ({
   displays,
   isMapHovered,
 }) => {
-const DisplayList: React.FC<IDisplayListProps> = ({ displays }) => {
   const [selectedDisplay, setSelectedDisplay] = useState<IDisplay | null>(null);
 
   const handleDisplayClick = (display: IDisplay) => {
@@ -61,9 +60,8 @@ const DisplayList: React.FC<IDisplayListProps> = ({ displays }) => {
                           ? truncateText(display.formatted_address, 13)
                           : display.formatted_address}
                       </p>
-                      <p className="font-bold">{display.formatted_address}</p>
                       <p className="text-blue-400">
-                        `${display.price_converted} / día`
+                        $ {display.price_converted} / día
                       </p>
                       <hr className="m-1" />
                       <p>
@@ -78,17 +76,11 @@ const DisplayList: React.FC<IDisplayListProps> = ({ displays }) => {
                       <p>
                         {isMapHovered
                           ? truncateText(
-                              `Resolución: ${display.resolution_width}x$
+                              `Resolución: ${display.resolution_width}x
                         {display.resolution_height}`,
                               13,
                             )
-                          : `Resolución: ${display.resolution_width}x${display.resolution_height}`}
-                        `Tamaño: ${display.size_width}m x ${display.size_height}
-                        m`
-                      </p>
-                      <p>
-                        `Resolución: ${display.resolution_width}x$
-                        {display.resolution_height}`
+                          : `Resolución: ${display.resolution_width}x${display.resolution_height} `}
                       </p>
                     </div>
                     <PlusCircleOutlined className="transform transition-all duration-300 hover:scale-110 hover:text-blue-500" />
