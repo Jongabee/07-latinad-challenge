@@ -9,6 +9,7 @@ import {
   searchCampaign,
   updateSearchParams,
 } from '../redux/campaign/campaignSlice';
+import Filters from '../components/Filters';
 
 const ResultsView: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,7 +27,6 @@ const ResultsView: React.FC = () => {
 
   const [isMapHovered, setIsMapHovered] = useState<boolean>(false);
   const [filtersVisible] = useState<boolean>(true);
-  const [isCartVisible, setIsCartVisible] = useState<boolean>(false);
 
   useEffect(() => {
     if (displays.length === 0 && !loading && !error) {
@@ -111,7 +111,18 @@ const ResultsView: React.FC = () => {
             </span>
             <div className="flex-grow border-t border-blue-400"></div>
           </div>
-
+          {!isMapHovered && filtersVisible && (
+            <Filters
+              nameFilter={nameFilter}
+              setNameFilter={setNameFilter}
+              sizeTypeFilter={sizeTypeFilter}
+              setSizeTypeFilter={setSizeTypeFilter}
+              priceFilter={priceFilter}
+              setPriceFilter={setPriceFilter}
+              locationTypeFilter={locationTypeFilter}
+              setLocationTypeFilter={setLocationTypeFilter}
+            />
+          )}
           <div className="max-h-68 overflow-y-auto overflow-x-hidden">
             <DisplayList
               displays={filteredDisplays}
