@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { List, Card, Modal } from 'antd';
+import { List, Card, Modal, Button } from 'antd';
 import { IDisplay } from '../types';
-import { PlusCircleOutlined } from '@ant-design/icons';
+import { ShoppingCartOutlined } from '@ant-design/icons';
 import DisplayDetails from './DisplayDetails';
 import { truncateText } from '../utils/truncateText';
 import useCustomNotification from '../hooks/useCustomNotification';
@@ -94,7 +94,7 @@ const DisplayList: React.FC<IDisplayListProps> = ({
                           : display.formatted_address}
                       </p>
                       <p className="text-blue-400">
-                        $ {display.price_converted} / día
+                        $ARG {display.price_converted} / día
                       </p>
                       <hr className="m-1" />
                       <p>
@@ -116,13 +116,16 @@ const DisplayList: React.FC<IDisplayListProps> = ({
                           : `Resolución: ${display.resolution_width}x${display.resolution_height} `}
                       </p>
                       {!isMapHovered && (
-                        <PlusCircleOutlined
+                        <Button
+                          className="flex items-center gap-2 mt-2"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAddToCart(display);
                           }}
-                          className="transform transition-all duration-300 hover:scale-110 hover:text-blue-500"
-                        />
+                        >
+                          <p>Agregar</p>
+                          <ShoppingCartOutlined />
+                        </Button>
                       )}
                     </div>
                   </div>
