@@ -91,9 +91,9 @@ const Filters: React.FC<FiltersProps> = ({
                   onChange={(e) => setPriceFilter(e.target.value)}
                   className="flex flex-col space-y-2"
                 >
-                  <Radio value="less_than_5">Menor a 5$</Radio>
-                  <Radio value="between_5_and_15">Entre 5$ y 15$</Radio>
-                  <Radio value="greater_than_15">Mayor a 15$</Radio>
+                  <Radio value="less_than_5">Hasta $5.000</Radio>
+                  <Radio value="between_5_and_15">$5.000 a $15.000</Radio>
+                  <Radio value="greater_than_15">Más de $15.000</Radio>
                 </Radio.Group>
               </Panel>
               <Panel header="Por ubicación" key="location">
