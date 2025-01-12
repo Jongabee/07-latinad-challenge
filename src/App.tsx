@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
-import SearchView from './pages/SearchView';
-import ResultsView from './pages/ResultsView';
+import SearchView from './pages/SearchView/SearchView';
+import ResultsView from './pages/ResultsView/ResultsView';
 
 function App() {
   return (
