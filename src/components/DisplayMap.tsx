@@ -5,6 +5,8 @@ import { IDisplay } from '../types';
 import { useDispatch } from 'react-redux';
 import DisplayDetails from './DisplayDetails';
 import { Modal } from 'antd';
+import { addItemToCart } from '../redux/cart/cartSlice';
+import useCustomNotification from '../hooks/useCustomNotification';
 
 interface IDisplayMap {
   displays: IDisplay[];
@@ -14,6 +16,7 @@ const DisplayMap: React.FC<IDisplayMap> = ({ displays }) => {
   const mapRef = useRef<L.Map | null>(null);
   const [selectedDisplay, setSelectedDisplay] = useState<IDisplay | null>(null);
   const dispatch = useDispatch();
+  const { openNotification, contextHolder } = useCustomNotification();
 
   useEffect(() => {
     if (!mapRef.current) {
@@ -68,10 +71,37 @@ const DisplayMap: React.FC<IDisplayMap> = ({ displays }) => {
 
       marker.on('popupopen', () => {
         const infoButton = document.getElementById(`info-button-${display.id}`);
+        const addToCartButton = document.getElementById(
+          `add-to-cart-${display.id}`,
+        );
 
         if (infoButton) {
           infoButton.onclick = () => {
             setSelectedDisplay(display);
+          };
+        }
+        if (addToCartButton) {
+          addToCartButton.onclick = () => {
+            const isItemInCart = JSON.parse(
+              localStorage.getItem('cart') || '[]',
+            ).some((item: { name: string }) => item.name === display.name);
+
+            if (isItemInCart) {
+              openNotification(
+                'bottomRight',
+                'Ítem duplicado',
+                `El ítem "${display.name}" ya está en el carrito.`,
+                { tailwindClass: 'bg-red-300 rounded-md text-gray-50' },
+              );
+            } else {
+              dispatch(addItemToCart(display));
+              openNotification(
+                'bottomRight',
+                'Ítem agregado',
+                `El ítem "${display.name}" fue agregado al carrito.`,
+                { tailwindClass: 'bg-green-200 rounded-md text-gray-50' },
+              );
+            }
           };
         }
       });
@@ -83,10 +113,11 @@ const DisplayMap: React.FC<IDisplayMap> = ({ displays }) => {
       );
       map.fitBounds(bounds, { padding: [50, 50] });
     }
-  }, [displays, dispatch]);
+  }, [displays, dispatch, openNotification]);
 
   return (
     <>
+      {contextHolder}
       <div
         id="map"
         className="h-[calc(100vh-20px)] w-full mt-3 rounded-lg shadow-md"
