@@ -1,5 +1,12 @@
-import React from "react";
-import { Input, Button } from "antd";
+import React, { useState } from 'react';
+import { Input, Button, Radio, Collapse, Space } from 'antd';
+import {
+  SearchOutlined,
+  FilterOutlined,
+  DownOutlined,
+} from '@ant-design/icons';
+
+const { Panel } = Collapse;
 
 interface FiltersProps {
   nameFilter: string;
@@ -22,121 +29,98 @@ const Filters: React.FC<FiltersProps> = ({
   locationTypeFilter,
   setLocationTypeFilter,
 }) => {
+  const [activeKey, setActiveKey] = useState<string | undefined>(undefined);
+
   const clearFilters = () => {
-    setNameFilter("");
+    setNameFilter('');
     setSizeTypeFilter(null);
     setPriceFilter(null);
     setLocationTypeFilter(null);
+    setActiveKey(undefined);
+  };
+
+  const onInnerCollapseChange = (key: string | string[]) => {
+    if (typeof key === 'string') {
+      setActiveKey((prevKey) => (prevKey === key ? undefined : key));
+    } else {
+      setActiveKey(undefined);
+    }
   };
 
   return (
-    <div>
-      <div className="py-1 gap-2">
+    <div className="bg-white p-4 rounded-lg shadow-md">
+      <Space direction="vertical" size="middle" className="w-full">
         <Input
-          type="text"
+          size="large"
           placeholder="Buscar pantalla..."
+          prefix={<SearchOutlined />}
           value={nameFilter}
           onChange={(e) => setNameFilter(e.target.value)}
+          className="w-full"
         />
-      </div>
-      <div className="bg-white p-2  rounded-lg shadow-lg mb-2">
-        <div className="flex gap-4">
-          <div className="flex flex-col">
-            <p className="font-semibold">Por tamaño</p>
-            <label>
-              <input
-                type="radio"
-                value="small"
-                checked={sizeTypeFilter === "small"}
-                onChange={() => setSizeTypeFilter("small")}
-                className="mr-2"
-              />
-              Pequeño
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="medium"
-                checked={sizeTypeFilter === "medium"}
-                onChange={() => setSizeTypeFilter("medium")}
-                className="mr-2"
-              />
-              Mediano
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="big"
-                checked={sizeTypeFilter === "big"}
-                onChange={() => setSizeTypeFilter("big")}
-                className="mr-2"
-              />
-              Grande
-            </label>
-          </div>
 
-          <div className="flex flex-col">
-            <p className="font-semibold">Por precio</p>
-            <label>
-              <input
-                type="radio"
-                value="less_than_5"
-                checked={priceFilter === "less_than_5"}
-                onChange={() => setPriceFilter("less_than_5")}
-                className="mr-2"
-              />
-              Menor a 5$
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="between_5_and_15"
-                checked={priceFilter === "between_5_and_15"}
-                onChange={() => setPriceFilter("between_5_and_15")}
-                className="mr-2"
-              />
-              Entre 5$ y 15$
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="greater_than_15"
-                checked={priceFilter === "greater_than_15"}
-                onChange={() => setPriceFilter("greater_than_15")}
-                className="mr-2"
-              />
-              Mayor a 15$
-            </label>
-          </div>
+        <Collapse
+          expandIcon={({ isActive }) => (
+            <DownOutlined rotate={isActive ? 180 : 0} />
+          )}
+        >
+          <Panel
+            header={
+              <span className="font-semibold">
+                <FilterOutlined className="mr-2" />
+                Más filtros
+              </span>
+            }
+            key="1"
+          >
+            <Collapse activeKey={activeKey} onChange={onInnerCollapseChange}>
+              <Panel header="Por tamaño" key="size">
+                <Radio.Group
+                  value={sizeTypeFilter}
+                  onChange={(e) => setSizeTypeFilter(e.target.value)}
+                  className="flex flex-col space-y-2"
+                >
+                  <Radio value="small">Pequeño</Radio>
+                  <Radio value="medium">Mediano</Radio>
+                  <Radio value="big">Grande</Radio>
+                </Radio.Group>
+              </Panel>
+              <Panel header="Por precio" key="price">
+                <Radio.Group
+                  value={priceFilter}
+                  onChange={(e) => setPriceFilter(e.target.value)}
+                  className="flex flex-col space-y-2"
+                >
+                  <Radio value="less_than_5">Menor a 5$</Radio>
+                  <Radio value="between_5_and_15">Entre 5$ y 15$</Radio>
+                  <Radio value="greater_than_15">Mayor a 15$</Radio>
+                </Radio.Group>
+              </Panel>
+              <Panel header="Por ubicación" key="location">
+                <Radio.Group
+                  value={locationTypeFilter}
+                  onChange={(e) => setLocationTypeFilter(e.target.value)}
+                  className="flex flex-col space-y-2"
+                >
+                  <Radio value="outdoor">Exterior</Radio>
+                  <Radio value="indoor">Interior</Radio>
+                </Radio.Group>
+              </Panel>
+            </Collapse>
 
-          <div className="flex flex-col">
-            <p className="font-semibold">Por ubicación</p>
-            <label>
-              <input
-                type="radio"
-                value="outdoor"
-                checked={locationTypeFilter === "outdoor"}
-                onChange={() => setLocationTypeFilter("outdoor")}
-                className="mr-2"
-              />
-              Exterior
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="indoor"
-                checked={locationTypeFilter === "indoor"}
-                onChange={() => setLocationTypeFilter("indoor")}
-                className="mr-2"
-              />
-              Interior
-            </label>
-          </div>
-          <Button onClick={clearFilters} type="default">
-            Limpiar Filtros
-          </Button>
-        </div>
-      </div>
+            <div className="mt-4">
+              <Button
+                onClick={clearFilters}
+                type="default"
+                size="middle"
+                className="bg-blue-500 text-white hover:bg-blue-600 border-none w-full"
+              >
+                Limpiar Filtros
+              </Button>
+            </div>
+          </Panel>
+        </Collapse>
+      </Space>
     </div>
   );
 };
