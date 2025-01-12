@@ -9,6 +9,7 @@ export interface ISearchParams {
   lng_ne: number;
   price_min?: number;
   price_max?: number;
+  city?: string;
 }
 
 export interface IPicture {
@@ -55,4 +56,28 @@ export interface IApiResponse {
   from: number;
   to: number;
   data: IDisplay[];
+}
+
+export interface ICoordinates {
+  lat_sw: number;
+  lng_sw: number;
+  lat_ne: number;
+  lng_ne: number;
+}
+
+export interface IPagination {
+  total: number;
+  per_page: number;
+  current_page: number;
+  last_page: number;
+  from: number;
+  to: number;
+}
+
+export interface ICampaignState {
+  searchParams: ISearchParams;
+  displays: any[];
+  loading: boolean;
+  error: string | null;
+  pagination: IPagination;
 }
