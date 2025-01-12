@@ -1,11 +1,5 @@
 import axios from 'axios';
-
-interface ICoordinates {
-  lat_sw: number;
-  lng_sw: number;
-  lat_ne: number;
-  lng_ne: number;
-}
+import { ICoordinates } from '../types';
 
 export const geocodeLocation = async (city: string): Promise<ICoordinates> => {
   try {
