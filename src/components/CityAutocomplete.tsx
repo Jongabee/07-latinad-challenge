@@ -1,7 +1,8 @@
-import React, { useState, useRef } from "react";
-import { AutoComplete } from "antd";
-import axios from "axios";
-import { debounce } from "lodash";
+import React, { useState, useRef } from 'react';
+import { AutoComplete } from 'antd';
+import axios from 'axios';
+import { debounce } from 'lodash';
+import { LoadingOutlined } from '@ant-design/icons';
 
 interface ICityAutocompleteProps {
   onSelect: (value: string) => void;
@@ -11,69 +12,110 @@ interface ICityResponse {
   display_name: string;
   lat: string;
   lon: string;
+  address: {
+    country: string;
+  };
 }
 
 interface IOption {
   value: string;
-  label: string;
+  label: React.ReactNode;
 }
+
+const allowedCountries = [
+  'Argentina',
+  'Perú',
+  'Ecuador',
+  'Colombia',
+  'Chile',
+  'Costa Rica',
+  'El Salvador',
+  'Guatemala',
+  'Honduras',
+  'Nicaragua',
+  'Panamá',
+];
 
 const CityAutocomplete: React.FC<ICityAutocompleteProps> = ({ onSelect }) => {
   const [options, setOptions] = useState<IOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const cacheRef = useRef<Map<string, IOption[]>>(new Map());
+
+  const highlightMatch = (text: string, search: string) => {
+    const regex = new RegExp(`(${search})`, 'gi');
+    return text.replace(regex, '<strong>$1</strong>');
+  };
 
   const searchCity = async (value: string) => {
-    if (value.length > 2) {
-      setIsLoading(true);
-      setError(null);
+    const trimmedValue = value.trim();
+    if (trimmedValue.length === 0) {
+      setOptions([]);
+      return;
+    }
 
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+    if (cacheRef.current.has(trimmedValue)) {
+      setOptions(cacheRef.current.get(trimmedValue)!);
+      return;
+    }
 
-      const abortController = new AbortController();
-      abortControllerRef.current = abortController;
+    setIsLoading(true);
+    setError(null);
 
-      try {
-        const response = await axios.get<ICityResponse[]>(
-          "https://nominatim.openstreetmap.org/search",
-          {
-            params: {
-              q: value,
-              format: "json",
-              addressdetails: 1,
-              limit: 5,
-            },
-            signal: abortController.signal,
-          }
-        );
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
 
-        const results: IOption[] = response.data.map((item) => ({
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    try {
+      const response = await axios.get<ICityResponse[]>(
+        'https://nominatim.openstreetmap.org/search',
+        {
+          params: {
+            q: trimmedValue,
+            format: 'json',
+            addressdetails: 1,
+            limit: 5,
+          },
+          signal: abortController.signal,
+        },
+      );
+
+      const filteredResults: IOption[] = response.data
+        .filter(
+          (item) =>
+            item.address && allowedCountries.includes(item.address.country),
+        )
+        .map((item) => ({
           value: item.display_name,
-          label: item.display_name,
+          label: (
+            <span
+              dangerouslySetInnerHTML={{
+                __html: highlightMatch(item.display_name, trimmedValue),
+              }}
+            />
+          ),
         }));
 
-        setOptions(results);
-      } catch (error: unknown) {
-        if (axios.isCancel(error)) {
-          console.log("Solicitud cancelada");
-        } else {
-          console.error("Error fetching city suggestions:", error);
-          setError(
-            "Hubo un problema al cargar las ciudades. Intente de nuevo."
-          );
-        }
-      } finally {
-        setIsLoading(false);
+      cacheRef.current.set(trimmedValue, filteredResults);
+
+      setOptions(filteredResults);
+    } catch (error: unknown) {
+      if (axios.isCancel(error)) {
+        console.log('Solicitud cancelada');
+      } else {
+        console.error('Error fetching city suggestions:', error);
+        setError('Hubo un problema al cargar las ciudades. Intente de nuevo.');
       }
-    } else {
-      setOptions([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const debouncedSearchCity = debounce(searchCity, 300);
+  const debouncedSearchCity = debounce(searchCity, 500);
 
   const handleSearch = (value: string) => {
     debouncedSearchCity(value);
@@ -84,21 +126,17 @@ const CityAutocomplete: React.FC<ICityAutocompleteProps> = ({ onSelect }) => {
   };
 
   return (
-    <div style={{ position: "relative", width: "100%" }}>
+    <div style={{ position: 'relative', width: '100%' }}>
       <AutoComplete
-        style={{ width: "100%" }}
+        style={{ width: '100%' }}
         options={options}
         onSearch={handleSearch}
         onSelect={handleSelect}
-        placeholder="Ingrese la ciudad o zona"
+        placeholder={isLoading ? 'Buscando...' : 'Ingrese la ciudad o zona'}
+        suffixIcon={isLoading ? <LoadingOutlined /> : null}
       />
-      {isLoading && (
-        <div style={{ marginTop: 4, fontSize: 12, color: "gray" }}>
-          Cargando...
-        </div>
-      )}
       {error && (
-        <div style={{ marginTop: 4, fontSize: 12, color: "red" }}>{error}</div>
+        <div style={{ marginTop: 4, fontSize: 12, color: 'red' }}>{error}</div>
       )}
     </div>
   );
