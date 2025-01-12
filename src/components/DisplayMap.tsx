@@ -29,6 +29,15 @@ const DisplayMap: React.FC<IDisplayMap> = ({ displays }) => {
 
     const map = mapRef.current;
 
+    const customIcon = new L.Icon({
+      iconUrl: '/marker-icon.png',
+      shadowUrl: '/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+
     map.eachLayer((layer) => {
       if (layer instanceof L.Marker) {
         map.removeLayer(layer);
@@ -66,7 +75,9 @@ const DisplayMap: React.FC<IDisplayMap> = ({ displays }) => {
         </div>
       `;
 
-      const marker = L.marker([display.latitude, display.longitude]).addTo(map);
+      const marker = L.marker([display.latitude, display.longitude], {
+        icon: customIcon,
+      }).addTo(map);
       marker.bindPopup(popupContent);
 
       marker.on('popupopen', () => {
