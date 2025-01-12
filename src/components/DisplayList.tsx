@@ -4,6 +4,10 @@ import { IDisplay } from '../types';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import DisplayDetails from './DisplayDetails';
 import { truncateText } from '../utils/truncateText';
+import useCustomNotification from '../hooks/useCustomNotification';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../redux/store';
+import { addItemToCart } from '../redux/cart/cartSlice';
 
 interface IDisplayListProps {
   displays: IDisplay[];
@@ -21,7 +25,8 @@ const DisplayList: React.FC<IDisplayListProps> = ({
   isMapHovered,
 }) => {
   const [selectedDisplay, setSelectedDisplay] = useState<IDisplay | null>(null);
-
+  const { openNotification, contextHolder } = useCustomNotification();
+  const dispatch = useDispatch<AppDispatch>();
   const handleDisplayClick = (display: IDisplay) => {
     setSelectedDisplay(display);
   };
@@ -29,9 +34,31 @@ const DisplayList: React.FC<IDisplayListProps> = ({
   const handleCloseModal = () => {
     setSelectedDisplay(null);
   };
+  const handleAddToCart = (display: IDisplay) => {
+    const isItemInCart = JSON.parse(localStorage.getItem('cart') || '[]').some(
+      (item: { name: string }) => item.name === display.name,
+    );
+    if (isItemInCart) {
+      openNotification(
+        'bottomRight',
+        'Ítem duplicado',
+        `El ítem "${display.name}" ya está en el carrito.`,
+        { tailwindClass: 'bg-red-300 rounded-md text-gray-50' },
+      );
+    } else {
+      dispatch(addItemToCart(display));
 
+      openNotification(
+        'bottomRight',
+        'Ítem agregado',
+        `El ítem "${display.name}" fue agregado al carrito.`,
+        { tailwindClass: 'bg-green-200 rounded-md text-gray-50' },
+      );
+    }
+  };
   return (
     <>
+      {contextHolder}
       <div className=" ">
         <List
           dataSource={displays}
@@ -41,6 +68,12 @@ const DisplayList: React.FC<IDisplayListProps> = ({
               <Card
                 onClick={() => handleDisplayClick(display)}
                 className="transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg cursor-pointer"
+                styles={{
+                  body: {
+                    padding: '0 20px',
+                    margin: 0,
+                  },
+                }}
               >
                 <div className="flex items-center gap-3">
                   <img
@@ -82,8 +115,16 @@ const DisplayList: React.FC<IDisplayListProps> = ({
                             )
                           : `Resolución: ${display.resolution_width}x${display.resolution_height} `}
                       </p>
+                      {!isMapHovered && (
+                        <PlusCircleOutlined
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(display);
+                          }}
+                          className="transform transition-all duration-300 hover:scale-110 hover:text-blue-500"
+                        />
+                      )}
                     </div>
-                    <PlusCircleOutlined className="transform transition-all duration-300 hover:scale-110 hover:text-blue-500" />
                   </div>
                 </div>
               </Card>
