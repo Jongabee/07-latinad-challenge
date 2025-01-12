@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { AutoComplete } from 'antd';
 import axios from 'axios';
 import { debounce } from 'lodash';
 import { LoadingOutlined } from '@ant-design/icons';
+import Input from './ui/input';
 
 interface ICityAutocompleteProps {
   onSelect: (value: string) => void;
@@ -19,7 +19,7 @@ interface ICityResponse {
 
 interface IOption {
   value: string;
-  label: React.ReactNode;
+  label: string;
 }
 
 const allowedCountries = [
@@ -37,16 +37,12 @@ const allowedCountries = [
 ];
 
 const CityAutocomplete: React.FC<ICityAutocompleteProps> = ({ onSelect }) => {
+  const [inputValue, setInputValue] = useState('');
   const [options, setOptions] = useState<IOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const cacheRef = useRef<Map<string, IOption[]>>(new Map());
-
-  const highlightMatch = (text: string, search: string) => {
-    const regex = new RegExp(`(${search})`, 'gi');
-    return text.replace(regex, '<strong>$1</strong>');
-  };
 
   const searchCity = async (value: string) => {
     const trimmedValue = value.trim();
@@ -91,17 +87,10 @@ const CityAutocomplete: React.FC<ICityAutocompleteProps> = ({ onSelect }) => {
         )
         .map((item) => ({
           value: item.display_name,
-          label: (
-            <span
-              dangerouslySetInnerHTML={{
-                __html: highlightMatch(item.display_name, trimmedValue),
-              }}
-            />
-          ),
+          label: item.display_name,
         }));
 
       cacheRef.current.set(trimmedValue, filteredResults);
-
       setOptions(filteredResults);
     } catch (error: unknown) {
       if (axios.isCancel(error)) {
@@ -118,23 +107,77 @@ const CityAutocomplete: React.FC<ICityAutocompleteProps> = ({ onSelect }) => {
   const debouncedSearchCity = debounce(searchCity, 500);
 
   const handleSearch = (value: string) => {
+    setInputValue(value);
     debouncedSearchCity(value);
   };
 
   const handleSelect = (value: string) => {
+    setInputValue(value);
+    setOptions([]);
     onSelect(value);
   };
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
-      <AutoComplete
-        style={{ width: '100%' }}
-        options={options}
-        onSearch={handleSearch}
-        onSelect={handleSelect}
-        placeholder={isLoading ? 'Buscando...' : 'Ingrese la ciudad o zona'}
-        suffixIcon={isLoading ? <LoadingOutlined /> : null}
+      <Input
+        name="city"
+        value={inputValue}
+        onChange={(e) => handleSearch(e.target.value)}
+        placeholder="Ingrese la ciudad o zona"
       />
+      {isLoading && (
+        <div
+          style={{
+            position: 'absolute',
+            right: 8,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: '#ccc',
+          }}
+        >
+          <LoadingOutlined className="text-blue-500 text-lg" />
+        </div>
+      )}
+      <ul
+        style={{
+          position: 'absolute',
+          zIndex: 1000,
+          background: 'white',
+          width: '100%',
+          border: '1px solid #ddd',
+          marginTop: 4,
+          listStyleType: 'none',
+          padding: 0,
+        }}
+      >
+        {isLoading && (
+          <li
+            style={{
+              padding: 8,
+              color: '#666',
+              cursor: 'default',
+              borderBottom: '1px solid #eee',
+            }}
+          >
+            Cargando...
+          </li>
+        )}
+
+        {!isLoading &&
+          options.map((option) => (
+            <li
+              key={option.value}
+              onClick={() => handleSelect(option.value)}
+              style={{
+                padding: 8,
+                cursor: 'pointer',
+                borderBottom: '1px solid #eee',
+              }}
+            >
+              {option.label}
+            </li>
+          ))}
+      </ul>
       {error && (
         <div style={{ marginTop: 4, fontSize: 12, color: 'red' }}>{error}</div>
       )}
