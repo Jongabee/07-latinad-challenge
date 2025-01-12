@@ -9,7 +9,7 @@ Este repositorio contiene la solución al desafío técnico propuesto por LatinA
 La aplicación permite a los usuarios realizar las siguientes acciones:
 
 1. Ingresar una fecha de inicio, fecha de fin y lugar o zona para buscar pantallas digitales disponibles en esas fechas.
-2. Mostrar un listado de pantallas disponibles con filtros avanzados:
+2. Mostrar un listado de pantallas disponibles con filtros:
    - Por nombre.
    - Por tipo de ubicación.
    - Por rango de precios.
@@ -42,8 +42,8 @@ Sigue estos pasos para instalar y ejecutar el proyecto en tu entorno local:
 ### **1. Clonar el repositorio**
 
 ```bash
-git clone https://github.com/jongabee/latinad-challenge.git
-cd latinad-challenge
+git clone https://github.com/jongabee/07-latinad-challenge.git
+cd 07-latinad-challenge
 ```
 
 ### **2. Instalar dependencias**
@@ -78,7 +78,6 @@ Para ejecutar el proyecto correctamente, sigue estos pasos:
 
 ```env
 VITE_API_BASE_URL=La URL base de la API que proporciona LatinAd
-VITE_API_TOKEN=El token de autorización necesario para consumir la API.
 ```
 
 ## **Nota importante**
