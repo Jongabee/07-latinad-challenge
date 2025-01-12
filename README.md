@@ -77,7 +77,7 @@ Para ejecutar el proyecto correctamente, sigue estos pasos:
 2. Define las siguientes variables en el archivo `.env`:
 
 ```env
-VITE_API_BASE_URL=La URL base de la API que proporciona LatinAd
+VITE_BACKEND_URL=La URL base de la API que proporciona LatinAd
 ```
 
 ## **Nota importante**
