@@ -46,6 +46,8 @@ export interface IDisplay {
   is_online: boolean;
   pictures: IPicture[];
   price_converted: number;
+  date_from: string;
+  date_to: string;
 }
 
 export interface IApiResponse {

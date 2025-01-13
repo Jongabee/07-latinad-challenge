@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IDisplay } from '../../types';
 
 interface ICart {
-  items: { name: string; price: number }[];
+  items: { name: string; price: number; date_from: string; date_to: string }[];
 }
 
 const initialState: ICart = {
@@ -14,7 +14,7 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addItemToCart: (state, action: PayloadAction<IDisplay>) => {
-      const { name, price_converted } = action.payload;
+      const { name, price_converted, date_from, date_to } = action.payload;
 
       const exists = state.items.find((item) => item.name === name);
 
@@ -22,6 +22,8 @@ const cartSlice = createSlice({
         state.items.push({
           name,
           price: price_converted,
+          date_from,
+          date_to,
         });
         localStorage.setItem('cart', JSON.stringify(state.items));
       }

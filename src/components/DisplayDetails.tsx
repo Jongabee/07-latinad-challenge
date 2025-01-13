@@ -15,8 +15,9 @@ import 'leaflet/dist/leaflet.css';
 import { IDisplay } from '../types';
 import useCustomNotification from '../hooks/useCustomNotification';
 import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../redux/store';
+import { AppDispatch, RootState } from '../redux/store';
 import { addItemToCart } from '../redux/cart/cartSlice';
+import { useSelector } from 'react-redux';
 
 const { Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -31,31 +32,13 @@ const DisplayDetails: React.FC<IDisplayDetailsProps> = ({ display }) => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const dispatch = useDispatch<AppDispatch>();
+  const { searchParams } = useSelector((state: RootState) => state.campaign);
+  console.log(searchParams, 'searchParams');
 
-  // useEffect(() => {
-  //   if (activeTab === '3' && mapRef.current && !leafletMapRef.current) {
-  //     leafletMapRef.current = L.map(mapRef.current).setView(
-  //       [display.latitude, display.longitude],
-  //       15,
-  //     );
+  const date_from = searchParams.date_from;
+  const date_to = searchParams.date_to;
+  console.log(date_from, date_to, 'date_from, date_to');
 
-  //     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  //       attribution:
-  //         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  //     }).addTo(leafletMapRef.current);
-
-  //     L.marker([display.latitude, display.longitude])
-  //       .addTo(leafletMapRef.current)
-  //       .bindPopup(
-  //         `
-  //         <strong>${display.name}</strong><br />
-  //         ${display.formatted_address}<br />
-  //         Precio: ${display.price_converted}  /día
-  //       `,
-  //       )
-  //       .openPopup();
-  //   }
-  // }, [activeTab, display]);
   useEffect(() => {
     if (activeTab === '3' && mapRef.current) {
       if (!leafletMapRef.current) {
@@ -91,6 +74,15 @@ const DisplayDetails: React.FC<IDisplayDetailsProps> = ({ display }) => {
     };
   }, [activeTab, display]);
   const handleAddToCart = (display: IDisplay) => {
+    console.log(date_from, date_to, 'date_from, date_to');
+
+    const displayWithDates = {
+      ...display,
+      date_from,
+      date_to,
+    };
+    console.log(displayWithDates, 'displayWithDates');
+
     const isItemInCart = JSON.parse(localStorage.getItem('cart') || '[]').some(
       (item: { name: string }) => item.name === display.name,
     );
@@ -102,7 +94,7 @@ const DisplayDetails: React.FC<IDisplayDetailsProps> = ({ display }) => {
         { tailwindClass: 'bg-red-300 rounded-md text-gray-50' },
       );
     } else {
-      dispatch(addItemToCart(display));
+      dispatch(addItemToCart(displayWithDates));
 
       openNotification(
         'bottomRight',
@@ -159,9 +151,9 @@ const DisplayDetails: React.FC<IDisplayDetailsProps> = ({ display }) => {
               >
                 <Space direction="vertical" size="middle" className="w-full">
                   <InfoItem
-                    icon={<PictureOutlined />}
-                    label="Resolución"
-                    value={`${display.resolution_width}x${display.resolution_height}`}
+                    icon={<EnvironmentOutlined />}
+                    label="Shows por hora"
+                    value={display.shows_per_hour.toFixed(2) + ' segs'}
                   />
                   <InfoItem
                     icon={<EnvironmentOutlined />}
@@ -195,6 +187,11 @@ const DisplayDetails: React.FC<IDisplayDetailsProps> = ({ display }) => {
                     value={`${display.size_width}m x ${display.size_height}m (${display.size_type})`}
                   />
                   <InfoItem
+                    icon={<PictureOutlined />}
+                    label="Resolución"
+                    value={`${display.resolution_width}x${display.resolution_height}`}
+                  />
+                  <InfoItem
                     icon={<InfoCircleOutlined />}
                     label="Espacios disponibles"
                     value={display.slots.toString()}
@@ -203,11 +200,6 @@ const DisplayDetails: React.FC<IDisplayDetailsProps> = ({ display }) => {
                     icon={<FieldTimeOutlined />}
                     label="Duración de cada espacio"
                     value={`${display.slot_length / 1000} segundos`}
-                  />
-                  <InfoItem
-                    icon={<FieldTimeOutlined />}
-                    label="Shows por hora"
-                    value={display.shows_per_hour.toFixed(2)}
                   />
                 </Space>
               </TabPane>
